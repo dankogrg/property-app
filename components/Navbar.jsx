@@ -13,7 +13,6 @@ const Navbar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const pathname = usePathname();
-    console.log(pathname);
 
     window.addEventListener("resize", () => {
         setIsMobileMenuOpen(false);
