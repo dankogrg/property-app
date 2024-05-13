@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/assets/images/logo-white.png";
 import profileDefault from "@/assets/images/profile.png";
@@ -14,10 +14,11 @@ const Navbar = () => {
 
     const pathname = usePathname();
 
-    window.addEventListener("resize", () => {
-        setIsMobileMenuOpen(false);
-    });
-
+    useEffect(() => {
+        window.addEventListener("resize", () => {
+            setIsMobileMenuOpen(false);
+        });
+    }, []);
     return (
         <nav className="bg-blue-700 border-b border-blue-500">
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
