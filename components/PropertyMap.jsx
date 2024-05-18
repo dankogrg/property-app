@@ -18,6 +18,7 @@ const PropertyMap = ({ property }) => {
         height: "500px",
     });
     const [loading, setLoading] = useState(true);
+    const [geocodeError, setGeocodeError] = useState(false);
 
     setDefaults({
         key: process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY,
@@ -27,18 +28,33 @@ const PropertyMap = ({ property }) => {
 
     useEffect(() => {
         const fetchCords = async () => {
-            const res = await fromAddress(
-                `${property.location.street} ${property.location.city} ${property.location.state} ${property.location.zipcode}`
-            );
-            const { lat, lng } = res.results[0].geometry.location;
-            setLat(lat);
-            setLng(lng);
-            setViewport({
-                ...viewport,
-                latitude: lat,
-                longitude: lng,
-            });
-            setLoading(false);
+            try {
+                const res = await fromAddress(
+                    `${property.location.street} ${property.location.city} ${property.location.state} ${property.location.zipcode}`
+                );
+
+                // Check for results
+                if (res.results.length === 0) {
+                    // No results found
+                    setGeocodeError(true);
+                    setLoading(false);
+                    return;
+                }
+
+                const { lat, lng } = res.results[0].geometry.location;
+                setLat(lat);
+                setLng(lng);
+                setViewport({
+                    ...viewport,
+                    latitude: lat,
+                    longitude: lng,
+                });
+            } catch (error) {
+                console.log(error);
+                setGeocodeError(true);
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchCords();
@@ -48,10 +64,15 @@ const PropertyMap = ({ property }) => {
         return <Spinner loading={loading} />;
     }
 
+    if (geocodeError) {
+        // Handle case where geocoding failed
+        return <div className="text-xl">No location data found</div>;
+    }
+
     return (
         !loading && (
             <Map
-                mapboxAccesToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+                mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                 mapLib={import("mapbox-gl")}
                 initialViewState={{
                     longitude: lng,
