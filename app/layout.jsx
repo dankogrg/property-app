@@ -1,4 +1,5 @@
 import "@/assets/styles/globals.css";
+import "photoswipe/dist/photoswipe.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
