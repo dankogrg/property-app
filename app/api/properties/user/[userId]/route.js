@@ -19,6 +19,6 @@ export const GET = async (request, { params }) => {
         });
     } catch (error) {
         console.log(error);
-        return new Response("Something went wrong", { status: 500 });
+        return new Response("Something Went Wrong", { status: 500 });
     }
 };

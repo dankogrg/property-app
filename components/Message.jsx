@@ -1,52 +1,34 @@
 "use client";
 
+import deleteMessage from "@/app/actions/deleteMessage";
+import markMessageAsRead from "@/app/actions/markMessageAsRead";
 import { useGlobalContext } from "@/context/GlobalContext";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const Message = ({ message }) => {
+const MessageCard = ({ message }) => {
     const [isRead, setIsread] = useState(message.read);
     const [deleted, setDeleted] = useState(false);
 
     const { setUnreadCount } = useGlobalContext();
 
     const handleReadClick = async () => {
-        try {
-            const res = await fetch(`/api/messages/${message._id}`, {
-                method: "PUT",
-            });
+        const read = await markMessageAsRead(message._id);
 
-            if (res.status === 200) {
-                const { read } = await res.json();
-                setIsread(read);
-                setUnreadCount((prevCount) =>
-                    read ? prevCount - 1 : prevCount + 1
-                );
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
-        }
+        setIsread(read);
+        setUnreadCount((prevCount) => (read ? prevCount - 1 : prevCount + 1));
+        toast.success(`Marked as ${read ? "read" : "new"}`);
     };
 
-    const handleDelete = async () => {
-        try {
-            const res = await fetch(`/api/messages/${message._id}`, {
-                method: "DELETE",
-            });
+    const handleDeleteClick = async () => {
+        await deleteMessage(message._id);
 
-            if (res.status === 200) {
-                setDeleted(true);
-                if (!isRead) {
-                    setUnreadCount((prevCount) => prevCount - 1);
-                }
-
-                toast.success("Message deleted");
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
+        setDeleted(true);
+        if (!isRead) {
+            setUnreadCount((prevCount) => prevCount - 1);
         }
+
+        toast.success("Message deleted");
     };
 
     return deleted ? null : (
@@ -98,7 +80,7 @@ const Message = ({ message }) => {
                 {isRead ? "Mark as new" : "Mark as read"}
             </button>
             <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="mt-4 bg-red-500 text-white py-1 px-3 rounded-md"
             >
                 Delete
@@ -106,4 +88,4 @@ const Message = ({ message }) => {
         </div>
     );
 };
-export default Message;
+export default MessageCard;
